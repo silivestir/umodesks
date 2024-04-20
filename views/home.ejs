@@ -17,8 +17,8 @@
         padding: 0;
     }
     .pdf-container {
-        width: 100%;
-        height: 100%;
+        width: 50%;
+        height: 50%;
         overflow: auto;
     }
     .pdf-canvas {
@@ -26,7 +26,7 @@
         height: 100%;
     }
     .pdf-toolbar {
-        position: absolute;
+        position: relative;
         top: 0;
         left: 0;
         right: 0;
@@ -86,12 +86,13 @@
             <button class="pdf-toolbar-button" id="previous">Previous</button>
             <input class="pdf-input" id="current_page" value="1" type="number"/>
             <button class="pdf-toolbar-button" id="next">Next</button>
-        </div>
+      <button class="pdf-toolbar-button" id="zoom_in">Zoom in</button>
+            <button class="pdf-toolbar-button" id="zoom_out">Zoom out</button>
+ 
+</div>
 
         <div id="zoom_controls">  
-            <button class="pdf-toolbar-button" id="zoom_in">+</button>
-            <button class="pdf-toolbar-button" id="zoom_out">-</button>
-        </div>
+                   </div>
     </div>
 
     <div id="canvas_container">
@@ -105,7 +106,7 @@
             zoom: 1
         }
       
-        pdfjsLib.getDocument('reactfull.pdf').then((pdf) => {
+        pdfjsLib.getDocument('uploads/reactfull.pdf').then((pdf) => {
       
             defaultState.pdf = pdf;
             render();
