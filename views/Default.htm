@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+  
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simple PDF Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+  <style>
+    html {
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    .pdf-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+    }
+    .pdf-canvas {
+        width: 100%;
+        height: 100%;
+    }
+    .pdf-toolbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #ddd;
+        z-index: 1;
+    }
+
+    .pdf-toolbar-button {
+        display: inline-block;
+        padding: 10px 10px;
+        height: 40px;
+        margin: 5px 2px 0 5px;	 
+        color: #fff;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .pdf-toolbar-button:hover {
+        color: #fff;
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    
+    .pdf-input{
+        width: 20%;
+        display: inline;
+        height: 40px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 0 10px;
+        font-size: 14px;
+        color: #212529;
+        outline: none;
+        background-color: #fff;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    }
+
+    #zoom_controls{
+        display: inline-block;
+    }
+
+    #navigation_controls{
+        display: inline-block;
+    }
+  </style>
+</head>
+<body>
+    <div class="pdf-toolbar">
+        <div id="navigation_controls">
+            <button class="pdf-toolbar-button" id="previous">Previous</button>
+            <input class="pdf-input" id="current_page" value="1" type="number"/>
+            <button class="pdf-toolbar-button" id="next">Next</button>
+        </div>
+
+        <div id="zoom_controls">  
+            <button class="pdf-toolbar-button" id="zoom_in">+</button>
+            <button class="pdf-toolbar-button" id="zoom_out">-</button>
+        </div>
+    </div>
+
+    <div id="canvas_container">
+        <canvas id="pdf_renderer"></canvas>
+    </div>
+ 
+    <script>
+        var defaultState = {
+            pdf: null,
+            currentPage: 1,
+            zoom: 1
+        }
+      
+        pdfjsLib.getDocument('reactfull.pdf').then((pdf) => {
+      
+            defaultState.pdf = pdf;
+            render();
+ 
+        });
+ 
+        function render() {
+            defaultState.pdf.getPage(defaultState.currentPage).then((page) => {
+          
+                var canvas = document.getElementById("pdf_renderer");
+                var ctx = canvas.getContext('2d');
+      
+                var viewport = page.getViewport(defaultState.zoom);
+ 
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+          
+                page.render({
+                    canvasContext: ctx,
+                    viewport: viewport
+                });
+            });
+        }
+ 
+        document.getElementById('previous').addEventListener('click', (e) => {
+            if(defaultState.pdf == null || defaultState.currentPage == 1) 
+              return;
+            defaultState.currentPage -= 1;
+            document.getElementById("current_page").value = defaultState.currentPage;
+            render();
+        });
+ 
+        document.getElementById('next').addEventListener('click', (e) => {
+            if(defaultState.pdf == null || defaultState.currentPage > defaultState.pdf._pdfInfo.numPages) 
+               return;
+            defaultState.currentPage += 1;
+            document.getElementById("current_page").value = defaultState.currentPage;
+            render();
+        });
+ 
+
+        document.getElementById('current_page').addEventListener('keypress', (e) => {
+            if(defaultState.pdf == null) return;
+          
+
+            var code = (e.keyCode ? e.keyCode : e.which);
+          
+            if(code == 13) {
+                var desiredPage = 
+                document.getElementById('current_page').valueAsNumber;
+                                  
+                if(desiredPage >= 1 && desiredPage <= defaultState.pdf._pdfInfo.numPages) {
+                    defaultState.currentPage = desiredPage;
+                    document.getElementById("current_page").value = desiredPage;
+                    render();
+                }
+            }
+        });
+ 
+        document.getElementById('zoom_in').addEventListener('click', (e) => {
+            if(defaultState.pdf == null) return;
+            defaultState.zoom += 0.5;
+            render();
+        });
+ 
+        document.getElementById('zoom_out').addEventListener('click', (e) => {
+            if(defaultState.pdf == null) return;
+            defaultState.zoom -= 0.5;
+            render();
+        });
+    </script>
+</body>
+</html>
