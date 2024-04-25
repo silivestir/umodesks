@@ -45,7 +45,7 @@ app.get('/files', async (req, res) => {
 });
 
 // Endpoint to delete a file from the database
-app.post('/delete', async (req, res) => {
+app.post('/delete/:title', async (req, res) => {
   try {
     const title = req.body.title; // Get title from request body
 console.log(title)
