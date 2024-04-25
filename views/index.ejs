@@ -5,43 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uanafunzi na Maandiko Online</title>
     <!-- Link to Bootstrap CSS from node_modules -->
-    <style>
-.a{color:white;
-background-color:navy}
-</style>
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" href="/csds/bootstrap.min.css">
      <script src="/js/pdf.min.js"></script> 
     <!-- Link to your custom CSS file -->
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+      
+    .a{
+     
+      background-image:url('uploads/mobcashfooter.jpg');
+       }
+      .b{
+        font-weight: bold;
+        text-decoration: none;
+        color:white;
+      }
+    </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg a">
-  <centre> <h1 class="centre">UMODESK</h1></centre>
-  <div class="container">
-    <span class="navbar-brand" >menu</span>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
+  <h1 class=" b">UMODesk</h1>
+  <div class="container b">
+    <span class="b">MENU</span>
+  <p style="color:white">
+    <button class="navbar-toggler  b" style="border 11px solid white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+      <p style="background-color:white">
+    <span class="navbar-toggler-icon b"></span></p>
+    </button></p>
+    <div class="collapse navbar-collapse b" 
+    id="navbarNav">
+      <ul class="navbar-nav me-auto ">
         <li class="nav-item">
-          <a class="nav-link" href="/login">Login</a><a class="nav-link" href="/signup">Signup</a>
+         <a class="nav-link " href="/login"><span class="b">Login</span></a>
+         <a class="nav-link a" href="/signup"><span class="b">Signup</span></a>
         </li>
       </ul>
       
-      <ul class="navbar-nav">
+      <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" href="/home">Home</a>
+         <span class="a"></span> <a class="nav-link a" href="/home"><span class="b">Home</span></a></span>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/mybooks">Notifications<span style='color:blue;font-weight:bold'>(0)</span></a>
+          <a class="nav-link a" href="/mybooks"><span class="b">Notifications</span><span style='color:white;font-weight:bold'>(0)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/salio">Salio</a>
+          <a class="nav-link a" href="/salio"><span class="b">Salio</span></a>
         </li>
         
          <li class="nav-item">
-          <a class="nav-link" href="/upload">upload</a>
+          <a class="nav-link a" href="/upload"><span class="b">upload</span></a>
         </li>
       </ul>
     </div>
@@ -64,7 +78,7 @@ background-color:navy}
 
     <script src="/js/bootstrap.min.js"></script>
 
+<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/js/pdf.mjs"></script>
-
 </body>
 </html>
