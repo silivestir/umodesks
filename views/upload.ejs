@@ -16,7 +16,7 @@
             <% files.forEach(file => { %>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <%= file %>
-                    <form action="/delete" method="post">
+                    <form action="/delete/:title" method="post">
     <input type="hidden" name="title" value="<%= file %>">
     <button type="submit" class="btn btn-danger">Delete</button>
 </form>
