@@ -10,11 +10,44 @@ const pool = new Pool({
 });
 
 // Set the view engine to EJS
+//app.set('view engine', 'ejs');
+
+
+
+// Set EJS as the rendering engine for specific routes
 app.set('view engine', 'ejs');
 
+// Use routes
+
+// Start the 
+
+
+//app.use(express.static('uploads'));
+
+
+
+
+
+
+
+
+
+
 // Serve static files from the public directory
+
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('public', path.join(__dirname, 'public'));
+
+app.set('uploads', path.join(__dirname, 'uploads'));
+app.use(express.static(path.join(__dirname, 'uploads')));
+// 
+
+
+app.engine('hdctml', require('ejs').renderFile);
+app.engine('pdf', require('ejs').renderFile);
 // Set up multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -47,7 +80,7 @@ app.get('/files', async (req, res) => {
 // Endpoint to delete a file from the database
 app.post('/delete/:title', async (req, res) => {
   try {
-    const title = req.body.title; // Get title from request body
+    const title = req.params.title; // Get title from request body
 console.log(title)
     // Check if the title is provided
     if (!title) {
@@ -64,6 +97,8 @@ console.log(title)
     }
 
     res.redirect('/upload'); // Redirect to the upload page after deletion
+ console.log("here in ")
+ 
   } catch (error) {
     console.error('Error deleting file:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -73,6 +108,7 @@ console.log(title)
 // Endpoint to render the upload page
 app.get('/upload', async (req, res) => {
   try {
+    console.log('heree')
     // Fetch list of files from the database
     const client = await pool.connect();
     const result = await client.query('SELECT title FROM books');
@@ -106,12 +142,51 @@ app.post('/upload', upload.single('uploadFile'), async (req, res) => {
   }
 });
 
+app.get('/icn.html', (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', 'UDAHILI DANGOTE.pdf'); // Specify the path to your PDF file
+  //  res.render(filePath);
+  res.render('in.html?file=filePath')
+});
+app.get('/inz.html', (req, res) => {
+    res.render('in.html', {
+        fileUrl: '/reactfull.pdf', // Pass the file URL to the template
+        bookName: 'read this book' // Pass the book name to the template
+    });
+});
+
+
+app.get('/uploazds/viewer', function(req, res) {
+    res.sendFile('/uploads/viewer');
+});
+
+app.get('/vifdffewer.html', function(req, res) {
+    res.render('/viewer.html', { /* optional data */ });
+});
+
+
+app.get('/inddd', function(req, res) {
+    res.render('/saliso', { /* optional data */ });
+});
+app.get('/inznn.HTML', (req, res) => {
+  const filePath = path.join(__dirname, 'uploads', 'the-complete-reference-html-css-fifth-edition.pdf'); // Specify the path to yo
+    res.sendFile(path.join(__dirname, 'views', 'in.html')); // Send the in.html file
+});
+app.get('/inxxdd.html', (req, res) => {
+    // Render the in.ejs template
+//    res.render('in.html', { filePath: req.query.file });
+const filePath = path.join(__dirname, 'uploads', 'the-complete-reference-html-css-fifth-edition.pdf'); // Specify the path to your PDF file
+    res.sendFile(filePath);
+});
+
+
 // Define routes
-const routes = ['/', '/home', '/mybooks', '/upload', '/login', '/signup', '/admin', '/salio'];
+const routes = ['/', '/hoxme', '/uploxads/vijxewer','/mybooks', '/upload', '/login', '/signup', '/admin', '/salio'];
 
 routes.forEach(route => {
+  
   app.get(route, (req, res) => {
-    res.render(route.slice(1), { files: [] }); // Render corresponding EJS template with an empty files array
+ //   res.sendFile("/uploads/viewer.html")
+   res.render(route.slice(1), { files: [] }); // Render corresponding EJS template with an empty files array
   });
 });
 
