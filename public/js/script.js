@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 function loadContent(page) {
+  if(page!='/home'){
+    
     // Fetch content from the server using AJAX
     fetch(`${page}`)
         .then(response => response.text()) // Parse response as text
@@ -23,5 +25,10 @@ function loadContent(page) {
         })
         .catch(error => {
             console.error('Error fetching content:', error);
-        });
+        });}
+        else{
+          
+          window.location.href='../uploads/viewer.html'
+          
+        }
 }
