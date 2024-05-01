@@ -1,181 +1,271 @@
+
 <!DOCTYPE html>
-  
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Simple PDF Viewer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
-  <style>
-    html {
-        font-size: 14px;
-        margin: 0;
-        padding: 0;
-    }
-    body {
-        margin: 0;
-        padding: 0;
-    }
-    .pdf-container {
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-    }
-    .pdf-canvas {
-        width: 100%;
-        height: 100%;
-    }
-    .pdf-toolbar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50px;
-        background-color: #f5f5f5;
-        border-bottom: 1px solid #ddd;
-        z-index: 1;
-    }
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!-- <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"> -->
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script src="/js/pdf.min.js"></script>
+<script src="/js/pdf.worker.min.js"></script>
 
-    .pdf-toolbar-button {
-        display: inline-block;
-        padding: 10px 10px;
-        height: 40px;
-        margin: 5px 2px 0 5px;	 
-        color: #fff;
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
+    <link rel="stylesheet" href="/js/bootstrap.min.js">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+     <script src="/js/pdf.min.js"></script> 
+    <!-- Link to your custom CSS file -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+      
+    .a{
+     
+      background-image:url('mobcashfooter.jpg');
+       }
+      .b{
+        font-weight: bold;
+        text-decoration: none;
+        color:white;
+      }
+    </style>
+<style type="text/css">
+#show-pdf-button {
+	width: 150px;
+	display: block;
+	margin: 20px auto;
+}
 
-    .pdf-toolbar-button:hover {
-        color: #fff;
-        background-color: #0b5ed7;
-        border-color: #0a58ca;
-    }
+#file-to-upload {
+	display: none;
+}
 
-    
-    .pdf-input{
-        width: 20%;
-        display: inline;
-        height: 40px;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        padding: 0 10px;
-        font-size: 14px;
-        color: #212529;
-        outline: none;
-        background-color: #fff;
-        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-    }
+#pdf-main-container {
+	width: 380px;
+	margin: 0px;
+}
 
-    #zoom_controls{
-        display: inline-block;
-    }
+#pdf-loader {
+	display: none;
+	text-align: center;
+	color: #999999;
+	font-size: 13px;
+	line-height: 100px;
+	height: 100px;
+}
 
-    #navigation_controls{
-        display: inline-block;
-    }
-  </style>
+#pdf-contents {
+	display: none;
+}
+
+#pdf-meta {
+	overflow: hidden;
+	margin: 0 0 20px 0;
+}
+
+#pdf-buttons {
+	float: left;
+}
+
+#page-count-container {
+	float: right;
+}
+
+#pdf-current-page {
+	display: inline;
+}
+
+#pdf-total-pages {
+	display: inline;
+}
+
+#pdf-canvas {
+	border: 1px solid rgba(0,0,0,0.2);
+	box-sizing: border-box;
+	width: 380px;
+}
+
+#page-loader {
+	height: 100px;
+	line-height: 100px;
+	text-align: center;
+	display: none;
+	color: #999999;
+	font-size: 13px;
+}
+</style>
 </head>
+
 <body>
-    <div class="pdf-toolbar">
-        <div id="navigation_controls">
-            <button class="pdf-toolbar-button" id="previous">Previous</button>
-            <input class="pdf-input" id="current_page" value="1" type="number"/>
-            <button class="pdf-toolbar-button" id="next">Next</button>
-        </div>
-
-        <div id="zoom_controls">  
-            <button class="pdf-toolbar-button" id="zoom_in">+</button>
-            <button class="pdf-toolbar-button" id="zoom_out">-</button>
-        </div>
+<nav class="navbar navbar-expand-lg a">
+  <h1 class=" b">UMODesk</h1>
+  <div class="container b">
+    <span class="b">MENU</span>
+  <p style="color:white">
+    <button class="navbar-toggler  b" style="border 11px solid white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+      <p style="background-color:white">
+    <span class="navbar-toggler-icon b"></span></p>
+    </button></p>
+    <div class="collapse navbar-collapse b" 
+    id="navbarNav">
+      <ul class="navbar-nav me-auto ">
+        <li class="nav-item">
+         <a class="nav-link " href="/login"><span class="b">Login</span></a>
+         <a class="nav-link a" href="/signup"><span class="b">Signup</span></a>
+        </li>
+      </ul>
+      
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+         <span class="a"></span> <a class="nav-link a" href="/in"><span class="b">Home</span></a></span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link a" href="/mybooks"><span class="b">Notifications</span><span style='color:white;font-weight:bold'>(0)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link a" href="/salio"><span class="b">Salio</span></a>
+        </li>
+        
+         <li class="nav-item">
+          <a class="nav-link a" href="/upload"><span class="b">upload</span></a>
+        </li>
+      </ul>
     </div>
+  </div>
+</nav>
+<button id="show-pdf-button">Show PDF</button> 
+<div id="pdf-main-container">
+	<div id="pdf-loader">Loading document ...</div>
+	<div id="pdf-contents">
+		<div id="pdf-meta">
+			<div id="pdf-buttons">
+				<button id="pdf-prev">Previous</button>
+				<button id="pdf-next">Next</button>
+			</div>
+			<div id="page-count-container">Page <div id="pdf-current-page"></div> of <div id="pdf-total-pages"></div></div>
+		</div>
+		<!-- <canvas id="pdf-canvas" width="400"></canvas> -->
+		<canvas id="pdf-canvas" width="2000"></canvas>
+		<div id="page-loader">Loading page ...</div>
+	</div>
+</div>
+<script>
 
-    <div id="canvas_container">
-        <canvas id="pdf_renderer"></canvas>
-    </div>
- 
-    <script>
-        var defaultState = {
-            pdf: null,
-            currentPage: 1,
-            zoom: 1
-        }
-      
-        pdfjsLib.getDocument('https://github.com/silivestir/umodesks/blob/main/uploads/the-complete-reference-html-css-fifth-edition.pdf').then((pdf) => {
-      
-            defaultState.pdf = pdf;
-            render();
- 
-        });
- 
-        function render() {
-            defaultState.pdf.getPage(defaultState.currentPage).then((page) => {
-          
-                var canvas = document.getElementById("pdf_renderer");
-                var ctx = canvas.getContext('2d');
-      
-                var viewport = page.getViewport(defaultState.zoom);
- 
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-          
-                page.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                });
-            });
-        }
- 
-        document.getElementById('previous').addEventListener('click', (e) => {
-            if(defaultState.pdf == null || defaultState.currentPage == 1) 
-              return;
-            defaultState.currentPage -= 1;
-            document.getElementById("current_page").value = defaultState.currentPage;
-            render();
-        });
- 
-        document.getElementById('next').addEventListener('click', (e) => {
-            if(defaultState.pdf == null || defaultState.currentPage > defaultState.pdf._pdfInfo.numPages) 
-               return;
-            defaultState.currentPage += 1;
-            document.getElementById("current_page").value = defaultState.currentPage;
-            render();
-        });
- 
+var _PDF_DOC,
+    _CURRENT_PAGE,
+    _TOTAL_PAGES,
+    _PAGE_RENDERING_IN_PROGRESS = 0,
+    _CANVAS = document.querySelector('#pdf-canvas');
 
-        document.getElementById('current_page').addEventListener('keypress', (e) => {
-            if(defaultState.pdf == null) return;
-          
+// initialize and load the PDF
+async function showPDF(pdf_url) {
+    document.querySelector("#pdf-loader").style.display = 'block';
 
-            var code = (e.keyCode ? e.keyCode : e.which);
-          
-            if(code == 13) {
-                var desiredPage = 
-                document.getElementById('current_page').valueAsNumber;
-                                  
-                if(desiredPage >= 1 && desiredPage <= defaultState.pdf._pdfInfo.numPages) {
-                    defaultState.currentPage = desiredPage;
-                    document.getElementById("current_page").value = desiredPage;
-                    render();
-                }
-            }
-        });
- 
-        document.getElementById('zoom_in').addEventListener('click', (e) => {
-            if(defaultState.pdf == null) return;
-            defaultState.zoom += 0.5;
-            render();
-        });
- 
-        document.getElementById('zoom_out').addEventListener('click', (e) => {
-            if(defaultState.pdf == null) return;
-            defaultState.zoom -= 0.5;
-            render();
-        });
-    </script>
+    // get handle of pdf document
+    try {
+        _PDF_DOC = await pdfjsLib.getDocument({ url: pdf_url });
+    }
+    catch(error) {
+        alert(error.message);
+    }
+
+    // total pages in pdf
+    _TOTAL_PAGES = _PDF_DOC.numPages;
+    
+    // Hide the pdf loader and show pdf container
+    document.querySelector("#pdf-loader").style.display = 'none';
+    document.querySelector("#pdf-contents").style.display = 'block';
+    document.querySelector("#pdf-total-pages").innerHTML = _TOTAL_PAGES;
+
+    // show the first page
+    showPage(1);
+}
+
+// load and render specific page of the PDF
+async function showPage(page_no) {
+    _PAGE_RENDERING_IN_PROGRESS = 1;
+    _CURRENT_PAGE = page_no;
+
+    // disable Previous & Next buttons while page is being loaded
+    document.querySelector("#pdf-next").disabled = true;
+    document.querySelector("#pdf-prev").disabled = true;
+
+    // while page is being rendered hide the canvas and show a loading message
+    document.querySelector("#pdf-canvas").style.display = 'none';
+    document.querySelector("#page-loader").style.display = 'block';
+
+    // update current page
+    document.querySelector("#pdf-current-page").innerHTML = page_no;
+    
+    // get handle of page
+    try {
+        var page = await _PDF_DOC.getPage(page_no);
+    }
+    catch(error) {
+        alert(error.message);
+    }
+
+    // original width of the pdf page at scale 1
+    var pdf_original_width = page.getViewport(1).width;
+    
+    // as the canvas is of a fixed width we need to adjust the scale of the viewport where page is rendered
+    var scale_required = _CANVAS.width / pdf_original_width;
+
+    // get viewport to render the page at required scale
+    var viewport = page.getViewport(scale_required);
+
+    // set canvas height same as viewport height
+    _CANVAS.height = viewport.height;
+
+    // setting page loader height for smooth experience
+    document.querySelector("#page-loader").style.height =  _CANVAS.height + 'px';
+    document.querySelector("#page-loader").style.lineHeight = _CANVAS.height + 'px';
+
+    // page is rendered on <canvas> element
+    var render_context = {
+        canvasContext: _CANVAS.getContext('2d'),
+        viewport: viewport
+    };
+        
+    // render the page contents in the canvas
+    try {
+        await page.render(render_context);
+    }
+    catch(error) {
+        alert(error.message);
+    }
+
+    _PAGE_RENDERING_IN_PROGRESS = 0;
+
+    // re-enable Previous & Next buttons
+    document.querySelector("#pdf-next").disabled = false;
+    document.querySelector("#pdf-prev").disabled = false;
+
+    // show the canvas and hide the page loader
+    document.querySelector("#pdf-canvas").style.display = 'block';
+    document.querySelector("#page-loader").style.display = 'none';
+}
+
+// click on "Show PDF" buuton
+document.querySelector("#show-pdf-button").addEventListener('click', function() {
+    this.style.display = 'none';
+    showPDF('UDAHILI DANGOTE.pdf');
+});
+
+// click on the "Previous" page button
+document.querySelector("#pdf-prev").addEventListener('click', function() {
+    if(_CURRENT_PAGE != 1)
+        showPage(--_CURRENT_PAGE);
+});
+
+// click on the "Next" page button
+document.querySelector("#pdf-next").addEventListener('click', function() {
+    if(_CURRENT_PAGE != _TOTAL_PAGES)
+        showPage(++_CURRENT_PAGE);
+});
+</script>
 </body>
+ <script src="/js/script.js"></script>
+        <script src="/js/pdf.min.js"></script>
+
+    <script src="/js/bootstrap.min.js"></script>
+
+<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
 </html>
