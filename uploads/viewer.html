@@ -130,9 +130,16 @@
     </div>
   </div>
 </nav>
-<button id="show-pdf-button">Show PDF</button> 
+
+<div id="file-list-container">
+    <ul id="file-list">
+      <!-- Dynamically created file list will be inserted here -->
+    </ul>
+  </div>
+
+<!--<button id="show-pdf-button">Show PDF</button> -->
 <div id="pdf-main-container">
-	<div id="pdf-loader">Loading document ...</div>
+	<div id="pdf-loader">UMODesk is Loading the book ...</div>
 	<div id="pdf-contents">
 		<div id="pdf-meta">
 			<div id="pdf-buttons">
@@ -146,7 +153,51 @@
 		<div id="page-loader">Loading page ...</div>
 	</div>
 </div>
+
 <script>
+// Function to fetch files from the database
+async function fetchFilesFromDB() {
+    try {
+        const response = await fetch('/books'); // Use the '/books' route to fetch files from the database
+        const files = await response.json();
+        return files;
+    } catch (error) {
+        console.error('Error fetching files:', error);
+        return [];
+    }
+}
+// Function to render the selected PDF file
+function renderPDF(path) {
+    const filename = path.split('/').pop(); // Extract filename from path
+    showPDF(filename); // Render the selected file when clicked
+}
+
+// Function to dynamically create file list from fetched data
+async function createFileListFromDB() {
+    const fileListContainer = document.getElementById('file-list');
+    const files = await fetchFilesFromDB();
+    files.forEach(file => {
+        const listItem = document.createElement('li');
+        listItem.textContent = file.title;
+        listItem.addEventListener('click', function() {
+          
+          
+          const filename = file.path.split('/').pop(); // Extract filename from path
+   // showPDF(filename); //
+          const filenameAsString = filename.toString(); // Convert filename to stringalert
+          //alert(filename)
+          
+          let a='WEB DESIGNING.pdf'
+renderPDF(filename);
+         // const a='UDAHILI DANGOTE.pdf'
+          //  renderPDF(a); // Render the selected file when clicked
+        });
+        fileListContainer.appendChild(listItem);
+    });
+}
+
+// Call the function to create the file list from the database
+createFileListFromDB();
 
 var _PDF_DOC,
     _CURRENT_PAGE,
@@ -160,6 +211,8 @@ async function showPDF(pdf_url) {
 
     // get handle of pdf document
     try {
+     // alert(pdf_url)
+      
         _PDF_DOC = await pdfjsLib.getDocument({ url: pdf_url });
     }
     catch(error) {
@@ -243,12 +296,6 @@ async function showPage(page_no) {
     document.querySelector("#page-loader").style.display = 'none';
 }
 
-// click on "Show PDF" buuton
-document.querySelector("#show-pdf-button").addEventListener('click', function() {
-    this.style.display = 'none';
-    showPDF('UDAHILI DANGOTE.pdf');
-});
-
 // click on the "Previous" page button
 document.querySelector("#pdf-prev").addEventListener('click', function() {
     if(_CURRENT_PAGE != 1)
@@ -261,6 +308,7 @@ document.querySelector("#pdf-next").addEventListener('click', function() {
         showPage(++_CURRENT_PAGE);
 });
 </script>
+
 </body>
  <script src="/js/script.js"></script>
         <script src="/js/pdf.min.js"></script>
