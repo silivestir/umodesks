@@ -1,3 +1,144 @@
+/*const express = require('express');
+const app = express();
+const path = require('path');
+const multer = require('multer');
+const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
+
+const pool = new Pool({
+  connectionString: 'postgres://bgckrxlt:OQ2TG25MyY8LMSy-NXsSaY4pLGNxXmTy@salt.db.elephantsql.com/bgckrxlt',
+});
+
+app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'uploads')));
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+const createUserTable = `
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(255) NOT NULL,
+  phone VARCHAR(15) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
+`;
+
+const createNotificationTable = `
+CREATE TABLE IF NOT EXISTS notifications (
+  id SERIAL PRIMARY KEY,
+  message TEXT,
+  recipient_id INT REFERENCES users(id),
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
+async function initializeTables() {
+  try {
+    const client = await pool.connect();
+    await client.query(createUserTable);
+    await client.query(createNotificationTable);
+    const checkUser = await client.query('SELECT * FROM users WHERE phone = $1', ['06666666666']);
+    if (checkUser.rowCount === 0) {
+      await client.query('INSERT INTO users (username, phone, password) VALUES ($1, $2, $3)', ['admin', '06666666666', 'admin@mobcash']);
+    }
+    client.release();
+    console.log('Tables initialized successfully.');
+  } catch (error) {
+    console.error('Error initializing tables:', error);
+  }
+}
+
+initializeTables();
+
+app.post('/signup', async (req, res) => {
+  try {
+    const { username, phone, password } = req.body;
+    const existingUser = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
+    if (existingUser.rowCount > 0) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+    await pool.query('INSERT INTO users (username, phone, password) VALUES ($1, $2, $3)', [username, phone, password]);
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+    console.error('Error signing up:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+    const user = await pool.query('SELECT * FROM users WHERE phone = $1 AND password = $2', [phone, password]);
+    if (user.rowCount === 0) {
+      return res.status(401).json({ error: 'Invalid phone number or password' });
+    }
+    const token = jwt.sign({ userId: user.rows[0].id }, 'secret', { expiresIn: '1h' });
+    res.json({ token });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (token == null) {
+    return res.sendStatus(401);
+  }
+  jwt.verify(token, 'secret', (err, user) => {
+    if (err) {
+      return res.sendStatus(403);
+    }
+    req.user = user;
+    next();
+  });
+}
+
+// Add a new SQL query to select path and title from the books table
+const selectBooksQuery = `
+SELECT path, title FROM books;
+`;
+
+// Add a new route to handle the query and return the result as JSON
+app.get('/books', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const books = await client.query(selectBooksQuery);
+    client.release();
+    res.json(books.rows); // Return the result as JSON
+  } catch (error) {
+    console.error('Error fetching books:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Your other endpoints can use the authenticateToken middleware to ensure authentication
+
+const routes = ['/', '/home', '/uploxads/vijxewer', '/mybooks', '/upload', '/login', '/signup', '/admin', '/salio'];
+
+routes.forEach(route => {
+  app.get(route, (req, res) => {
+    res.render(route.slice(1), { files: [] });
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});*/
+
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -177,10 +318,27 @@ app.get('/inxxdd.html', (req, res) => {
 const filePath = path.join(__dirname, 'uploads', 'the-complete-reference-html-css-fifth-edition.pdf'); // Specify the path to your PDF file
     res.sendFile(filePath);
 });
+// Add a new SQL query to select path and title from the books table
+const selectBooksQuery = `
+SELECT path, title FROM books;
+`;
+
+// Add a new route to handle the query and return the result as JSON
+app.get('/books', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const books = await client.query(selectBooksQuery);
+    client.release();
+    res.json(books.rows); // Return the result as JSON
+  } catch (error) {
+    console.error('Error fetching books:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 // Define routes
-const routes = ['/', '/hoxme', '/uploxads/vijxewer','/mybooks', '/upload', '/login', '/signup', '/admin', '/salio'];
+const routes = ['/', '/home', '/uploxads/vijxewer','/mybooks', '/upload', '/login', '/signup', '/admin', '/salio'];
 
 routes.forEach(route => {
   
