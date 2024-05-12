@@ -13,6 +13,22 @@
     <link rel="stylesheet" href="/css/styles.css">
     <style>
       
+.slides {
+  display: flex;
+  overflow-x: auto;
+  overflow-x: auto;
+}
+.slides > div {
+  display: flex;
+  flex-shrink: 0;
+  width: 100%;
+  height: 300px;
+  scroll-snap-align: start;
+  scroll-behavior: smooth;
+  background: #74ABE2;
+  justify-content: center;
+  align-items: center;
+  font-size: 100px;}
     .a{
      
       background-image:url('uploads/mobcashfooter.jpg');
@@ -22,55 +38,119 @@
         text-decoration: none;
         color:white;
       }
+      .dd{ padding: 16px;
+        border: 1px solid #ccc;
+        border-radius: 2%;
+      }
+     div .content{
+        border: 1px solid #ccc;
+        overflow-y: scroll;
+      }
+      
+        
+       
     </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg a">
-  <h1 class=" b">UMODesk</h1>
+  <nav class="navbar navbar-expand-xxl a navbar-dark  ">
+ <center><h1 class=" b">UMODesk</h1></center>
   <div class="container b">
     <span class="b">MENU</span>
   <p style="color:white">
     <button class="navbar-toggler  b" style="border 11px solid white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
     aria-expanded="false" aria-label="Toggle navigation">
-      <p style="background-color:white">
+      <p style="background-color:whxite">
     <span class="navbar-toggler-icon b"></span></p>
     </button></p>
     <div class="collapse navbar-collapse b" 
     id="navbarNav">
       <ul class="navbar-nav me-auto ">
         <li class="nav-item">
-         <a class="nav-link " href="/login"><span class="b">Login</span></a>
-         <a class="nav-link a" href="/signup"><span class="b">Signup</span></a>
+         <a class="nav-link " href="/login"><span class="b">SignIn</span></a>
+         <a class="nav-link a" href="/signup"><span class="b">SignUp</span></a>
         </li>
+           <li class="nav-item">
+         <a class="nav-link " href="/homes"><span class="b">FAQs</span></a>
+           </li>
       </ul>
       
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-         <span class="a"></span> <a class="nav-link a" href="/home"><span class="b">Home</span></a></span>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link a" href="/mybooks"><span class="b">Notifications</span><span style='color:white;font-weight:bold'>(0)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link a" href="/salio"><span class="b">Salio</span></a>
-        </li>
-        
-         <li class="nav-item">
-          <a class="nav-link a" href="/upload"><span class="b">upload</span></a>
-        </li>
-      </ul>
+     
     </div>
   </div>
 </nav>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    
+  
 <div class="content">
   
-  <pan>
-    <p>karibu UMODESK</p>
-    
-    Gusa kitufe cha menu upande wa kulia juu</pan>
   
+  
+  
+  <div class="container text-secondary" legend>
+    <span class="text-secondary ij">FAQs</span>
+  <p style="color:whitxe">
+    <button class="navbar-toggler  b" style="border 11px solid whitxe" type="button" data-bs-toggle="collapse" data-bs-target="#assey" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+      <p class='text-secondary dd'>
+        Je nitafanyaje ili kujiunga na kutumia hii app?
+    </p>
+    </button></p>
+    
+    
+  <p style="color:whitxe">
+    <button class="navbar-toggler  b" style="border 11px solid whitxe" type="button" data-bs-toggle="collapse" data-bs-target="#hitilafu" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+      <p class='text-secondary dd'>
+        Je nikipata hitilafu yoyote nikiwa ndani ya mfumo nafanyaje ?
+    </p>
+    </button></p>
+    
+    
+    
+  <p style="color:whitxe">
+    <button class="navbar-toggler  b" style="border 11px solid whitxe" type="button" data-bs-toggle="collapse" data-bs-target="#kushiriki" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+      <p class='text-secondary dd'>
+        Je naweza kushiriki UMODesk na ndugu jamaa na marafiki?
+    </p>
+    </button></p>
+    
+    <div class="collapse navbar-collapse b" 
+    id="assey">
+      <ul class="btn btn-secondary ">
+        <p>ili kutumia hii app jambo la kwanza ni kujisajili kwa kugusa kitufe cha Signup.Ukisha maliza jaza taalifa zako humu kisha  nenda kwenye kitufe cha login hapo uta ruhusiwa kuingiza taarifa zako na kupata kibali kamili cha kuingia kwenye mfumo huu wa UMODesk</p>
+      </ul>
+      
+
+    </div>
+    
+    <div class="collapse navbar-collapse b" 
+    id="hitilafu">
+      <ul class="btn btn-secondary ">
+        <p>Mfumo wa UMODesk umerahisisha huduma kwani endapo ikitokea hitilafu ndani ya mfumo huu tuna njia za kutatua kupita kipengele cha feedback na njia ya <a href="https://wa.me/0742909640"> WhatsApp</a> | <a href="mailto:samwelibukuku@gmail.com"> Email</a>
+
+        
+        </p>
+      </ul>
+      
+
+    </div>
+    
+    
+    <div class="collapse navbar-collapse b" 
+    id="kushiriki">
+      <ul class="btn btn-secondary ">
+        <p>
+        Ndio,UMODesk ni kwajili ya jamii .Mfumo huu umejikita kusambaza mafunzo kwa watu ...ikiwemo machapisho ya vitabu na makala kwa waandishi (local content) hivyo nivizuri kama ukishea na jamaa zako kuwaongezea maarifa
+        </p>
+      </ul>
+      
+
+    </div>
+  </div>
+  
+ <center> <p class="text-secondary fw-bold">&#169 UMODesk <script>var d=new Date().getYear();</script>2024</p></center>
 </div>
     <!-- Your navigation bar and content area here -->
     <!-- Don't forget to include your JavaScript file (e.g., script.js) -->
@@ -79,7 +159,9 @@
 
     <script src="/js/bootstrap.min.js"></script>
 
-<script src="../bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/css/bootstrap.min.css"></script>
     <script src="/js/pdf.mjs"></script>
+    
+
 </body>
 </html>
