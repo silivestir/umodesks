@@ -664,7 +664,7 @@ function generateToken(userId) {
 
 // Authentication route
 //const jwt = require('jsonwebtoken');
-const sessions={};
+const sessions = {};
 app.post('/login', async (req, res) => {
   const { phone, password } = req.body;
 
@@ -689,17 +689,21 @@ app.post('/login', async (req, res) => {
       console.log(`User ${user.id} logged out from previous session.`);
     }
 
-    // Include user ID in the redirect URL
-    const redirectUrl = `/uploads/viewer.html?userId=${user.id}`;
-
-    // Redirect to viewer.html with user ID in the URL parameters
-    res.redirect(redirectUrl);
+    // Check if the user's phone matches the specified value
+    if (phone === '255778611556') {
+      // Redirect to the upload route
+      return res.redirect('/upload');
+    } else {
+      // Redirect to the viewer.html route
+      return res.redirect('/uploads/viewer.html');
+    }
 
   } catch (error) {
     console.error('Error authenticating user:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 
 /*
