@@ -1,149 +1,11 @@
-/*const express = require('express');
-const app = express();
-const path = require('path');
-const multer = require('multer');
-const { Pool } = require('pg');
-const jwt = require('jsonwebtoken');
-
-const pool = new Pool({
-  connectionString: 'postgres://bgckrxlt:OQ2TG25MyY8LMSy-NXsSaY4pLGNxXmTy@salt.db.elephantsql.com/bgckrxlt',
-});
-
-app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'uploads')));
-
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  }
-});
-
-const upload = multer({ storage: storage });
-
-const createUserTable = `
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(255) NOT NULL,
-  phone VARCHAR(15) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL
-);
-`;
-
-const createNotificationTable = `
-CREATE TABLE IF NOT EXISTS notifications (
-  id SERIAL PRIMARY KEY,
-  message TEXT,
-  recipient_id INT REFERENCES users(id),
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`;
-
-async function initializeTables() {
-  try {
-    const client = await pool.connect();
-    await client.query(createUserTable);
-    await client.query(createNotificationTable);
-    const checkUser = await client.query('SELECT * FROM users WHERE phone = $1', ['06666666666']);
-    if (checkUser.rowCount === 0) {
-      await client.query('INSERT INTO users (username, phone, password) VALUES ($1, $2, $3)', ['admin', '06666666666', 'admin@mobcash']);
-    }
-    client.release();
-    console.log('Tables initialized successfully.');
-  } catch (error) {
-    console.error('Error initializing tables:', error);
-  }
-}
-
-initializeTables();
-
-app.post('/signup', async (req, res) => {
-  try {
-    const { username, phone, password } = req.body;
-    const existingUser = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
-    if (existingUser.rowCount > 0) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-    await pool.query('INSERT INTO users (username, phone, password) VALUES ($1, $2, $3)', [username, phone, password]);
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-    console.error('Error signing up:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.post('/login', async (req, res) => {
-  try {
-    const { phone, password } = req.body;
-    const user = await pool.query('SELECT * FROM users WHERE phone = $1 AND password = $2', [phone, password]);
-    if (user.rowCount === 0) {
-      return res.status(401).json({ error: 'Invalid phone number or password' });
-    }
-    const token = jwt.sign({ userId: user.rows[0].id }, 'secret', { expiresIn: '1h' });
-    res.json({ token });
-  } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (token == null) {
-    return res.sendStatus(401);
-  }
-  jwt.verify(token, 'secret', (err, user) => {
-    if (err) {
-      return res.sendStatus(403);
-    }
-    req.user = user;
-    next();
-  });
-}
-
-// Add a new SQL query to select path and title from the books table
-const selectBooksQuery = `
-SELECT path, title FROM books;
-`;
-
-// Add a new route to handle the query and return the result as JSON
-app.get('/books', async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const books = await client.query(selectBooksQuery);
-    client.release();
-    res.json(books.rows); // Return the result as JSON
-  } catch (error) {
-    console.error('Error fetching books:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Your other endpoints can use the authenticateToken middleware to ensure authentication
-
-const routes = ['/', '/home', '/uploxads/vijxewer', '/mybooks', '/upload', '/login', '/signup', '/admin', '/salio'];
-
-routes.forEach(route => {
-  app.get(route, (req, res) => {
-    res.render(route.slice(1), { files: [] });
-  });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});*/
-
 const express = require('express');
 const app = express();
 const path = require('path');
 const multer = require('multer');
 const { Pool } = require('pg');
+const cookieParser = require('cookie-parser'); // Ensure you use this middleware to parse cookies
+
+
 //const jwxt = require('jsonwebtoken');
 //const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -167,34 +29,9 @@ const pool = new Pool({
   connectionString: 'postgres://bgckrxlt:OQ2TG25MyY8LMSy-NXsSaY4pLGNxXmTy@salt.db.elephantsql.com/bgckrxlt',
 });
 
-// Set the view engine to EJS
-//app.set('view engine', 'ejs');
-
-
-
-// Set EJS as the rendering engine for specific routes
 app.set('view engine', 'ejs');
-
-// Use routes
-
-// Start the 
-
-
-//app.use(express.static('uploads'));
-
-
-
-
-
-
-
-
-
-
-// Serve static files from the public directory
-
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(cookieParser());
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('public', path.join(__dirname, 'public'));
@@ -203,9 +40,6 @@ app.set('uploads', path.join(__dirname, 'uploads'));
 app.use(express.static(path.join(__dirname, 'uploads')));
 // 
 
-
-app.engine('hdctml', require('ejs').renderFile);
-app.engine('pdf', require('ejs').renderFile);
 // Set up multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -319,24 +153,6 @@ async function initializeTables() {
 }
 
 initializeTables();
-
-
-//const jwt = require('jsonwebtoken');
-/*
-// Middleware to verify JWT token
-function verifyToken(req, res, next) {
-  const token = req.headers['authorization'];
-  if (!token) return res.status(401).send('Unauthorized');
-  
-  jwt.verify(token, '1351ea61fcad693d0422433dd34644558e2e8373ec1a36c55a30e126924b4e48', (err, decoded) => {
-    if (err) return res.status(401).send('Unauthorized');
-    req.userId = decoded.userId; // Extracting user's ID from the token
-    next();
-  });
-}*/
-
-//const jwt = require('jsonwebtoken');
-
 app.get('/user/notifications/:userId', async (req, res) => {
   const userId = req.params.userId;
   
@@ -354,158 +170,6 @@ app.get('/user/notifications/:userId', async (req, res) => {
 
 
 
-/*
-app.put('/user/notifications/:notificationId', verifyToken, async (req, res) => {
-  const notificationId = req.params.notificationId;
-  const userId = req.userId;
-
-  try {
-    // Check if the notification belongs to the logged-in user
-    const notification = await pool.query('SELECT user_id FROM notify WHERE id = $1', [notificationId]);
-    if (notification.rows.length === 0) {
-      return res.status(404).send('Notification not found');
-    }
-    const ownerId = notification.rows[0].user_id;
-    if (userId !== ownerId) {
-      return res.status(403).send('Forbidden');
-    }
-
-    // Mark notification as seen
-    await pool.query('UPDATE notify SET seen = true WHERE id = $1', [notificationId]);
-    res.status(200).send('Notification marked as seen');
-  } catch (error) {
-    console.error('Error marking notification as seen:', error);
-    res.status(500).send('Internal server error');
-  }
-});
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Endpoint to handle file upload and metadata insertion
 app.post('/upload', upload.single('uploadFile'), async (req, res) => {
   try {
@@ -516,14 +180,7 @@ app.post('/upload', upload.single('uploadFile'), async (req, res) => {
     const client = await pool.connect();
     //add modifications to handle notifications to user
     
-    
-    
-    
-    
-    
-    
-    
-    await client.query('INSERT INTO books (title, author, description, path) VALUES ($1, $2, $3, $4)', [title, author, fileDescription, filePath]);
+      await client.query('INSERT INTO books (title, author, description, path) VALUES ($1, $2, $3, $4)', [title, author, fileDescription, filePath]);
     
     
     
@@ -546,41 +203,27 @@ app.post('/upload', upload.single('uploadFile'), async (req, res) => {
   }
 });
 
-app.get('/icn.html', (req, res) => {
-    const filePath = path.join(__dirname, 'uploads', 'UDAHILI DANGOTE.pdf'); // Specify the path to your PDF file
-  //  res.render(filePath);
-  res.render('in.html?file=filePath')
-});
-app.get('/inz.html', (req, res) => {
-    res.render('in.html', {
-        fileUrl: '/reactfull.pdf', // Pass the file URL to the template
-        bookName: 'read this book' // Pass the book name to the template
-    });
+
+
+
+
+app.get('/user/notifications/:userId', async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Fetch notifications for the given userId from the database
+        const result = await pool.query('SELECT * FROM notify WHERE user_id = $1', [userId]);
+        const notifications = result.rows;
+
+        res.json(notifications);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 });
 
 
-app.get('/uploazds/viewer', function(req, res) {
-    res.sendFile('/uploads/viewer');
-});
 
-app.get('/vifdffewer.html', function(req, res) {
-    res.render('/viewer.html', { /* optional data */ });
-});
-
-
-app.get('/inddd', function(req, res) {
-    res.render('/saliso', { /* optional data */ });
-});
-app.get('/inznn.HTML', (req, res) => {
-  const filePath = path.join(__dirname, 'uploads', 'the-complete-reference-html-css-fifth-edition.pdf'); // Specify the path to yo
-    res.sendFile(path.join(__dirname, 'views', 'in.html')); // Send the in.html file
-});
-app.get('/inxxdd.html', (req, res) => {
-    // Render the in.ejs template
-//    res.render('in.html', { filePath: req.query.file });
-const filePath = path.join(__dirname, 'uploads', 'the-complete-reference-html-css-fifth-edition.pdf'); // Specify the path to your PDF file
-    res.sendFile(filePath);
-});
 // Add a new SQL query to select path and title from the books table
 const selectBooksQuery = `
 SELECT * FROM books;
@@ -601,25 +244,27 @@ app.get('/books', async (req, res) => {
 
 app.post('/updateBook', async (req, res) => {
   const { fileId, fieldToUpdate } = req.body;
-  
+
+  if (!fileId || !fieldToUpdate) {
+    return res.status(400).json({ error: 'fileId and fieldToUpdate are required' });
+  }
+
   try {
     const client = await pool.connect();
-    
-    // Update the appropriate field in the books table based on fileId and fieldToUpdate
+
     let updateQuery;
     if (fieldToUpdate === 'views') {
-      updateQuery = `UPDATE books SET views = views + 1 WHERE id = $1`;
+      updateQuery = 'UPDATE books SET views = views + 1 WHERE id = $1';
     } else if (fieldToUpdate === 'likes') {
-      updateQuery = `UPDATE books SET likes = likes + 1 WHERE id = $1`;
+      updateQuery = 'UPDATE books SET likes = likes + 1 WHERE id = $1';
     } else {
-      // Handle invalid fieldToUpdate value
-      res.status(400).json({ error: 'Invalid fieldToUpdate value' });
-      return;
+      client.release();
+      return res.status(400).json({ error: 'Invalid fieldToUpdate value' });
     }
-    
+
     await client.query(updateQuery, [fileId]);
     client.release();
-    
+
     res.status(200).json({ message: 'Book record updated successfully' });
   } catch (error) {
     console.error('Error updating book record:', error);
@@ -629,7 +274,17 @@ app.post('/updateBook', async (req, res) => {
 
 
 
+app.post('/logout', (req, res) => {
+  const sessionId = req.cookies.sessionId;
 
+  if (sessionId) {
+    delete sessions[sessionId]; // Remove session from memory
+    res.clearCookie('sessionId'); // Clear the cookie
+    res.json({ message: 'Logged out successfully' });
+  } else {
+    res.status(400).json({ message: 'No active session' });
+  }
+});
 
 
 
@@ -657,14 +312,24 @@ app.post('/signups', async (req, res) => {
   }
 });
 
-function generateToken(userId) {
-  return jwt.sign({ userId }, '1351ea61fcad693d0422433dd34644558e2e8373ec1a36c55a30e126924b4e48', { expiresIn: '4h' }); // Change 'your_secret_key' to your actual secret key
-}
 
+app.use((req, res, next) => {
+  const sessionId = req.cookies.sessionId;
+
+  if (sessionId && sessions[sessionId]) {
+    req.userId = sessions[sessionId].userId; // Attach userId to the request object
+    next(); // Proceed to the next middleware or route handler
+  } else {
+    res.status(401).json({ message: 'Unauthorized' }); // No valid session
+  }
+});
 
 // Authentication route
 //const jwt = require('jsonwebtoken');
-const sessions = {};
+ // For generating session IDs
+
+const sessions = {}; // In-memory session storage
+
 app.post('/login', async (req, res) => {
   const { phone, password } = req.body;
 
@@ -677,24 +342,24 @@ app.post('/login', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check password (insecure, should be replaced with bcrypt hashing)
+    // Check password (replace this with bcrypt or another secure method in production)
     if (password !== user.password) {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    // Check if the user is already logged in
-    if (sessions[user.id]) {
-      // Invalidate existing session
-      delete sessions[user.id];
-      console.log(`User ${user.id} logged out from previous session.`);
-    }
+    // Generate a unique session ID
+    const sessionId = crypto.randomBytes(16).toString('hex');
+    
+    // Store the session ID in memory
+    sessions[sessionId] = { userId: user.id };
 
-    // Check if the user's phone matches the specified value
+    // Set the session ID in a cookie
+    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 3600000 }); // Cookie valid for 1 hour
+
+    // Redirect based on the phone number
     if (phone === '255778611556') {
-      // Redirect to the upload route
       return res.redirect('/upload');
     } else {
-      // Redirect to the viewer.html route
       return res.redirect('/uploads/viewer.html');
     }
 
@@ -703,45 +368,6 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
-
-/*
-
-app.post('/login', async (req, res) => {
-  try {
-    const phone = req.body.phone;
-    const password = req.body.password;
-//navigator.localStorage.setIteam("user","assey")
-
-
-    console.log(phone)
-    const user = await pool.query('SELECT * FROM users WHERE phone = $1 AND password = $2', [phone, password]);
-    if (user.rowCount === 0) {
-      return res.status(401).json({ error: 'Invalid phone number or password' });
-    }
-
-    // Check if the user's phone number is "0666666666"
-    if (phone === "0666666666") {
-      // Redirect to the upload page
-      return res.redirect('/upload');
-    } else {
-      // Redirect to the home page
-      return res.redirect('/uploads/viewer');
-    }
-
-    // Generate JWT token for user session
-    // const token = jwt.sign({ userId: user.rows[0].id }, 'secret', { expiresIn: '1h' });
-    // res.json({ token });
-
-  } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-*/
-
 
 // Route to handle updating likes for a book
 app.post('/updateLikes:id', async (req, res) => {
