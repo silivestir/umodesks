@@ -172,39 +172,42 @@ app.get('/user/notifications/:userId', async (req, res) => {
 
 // Endpoint to handle file upload and metadata insertion
 app.post('/upload', upload.single('uploadFile'), async (req, res) => {
+  const { title, author, fileDescription } = req.body; // Get metadata from request body
+  const filePath = req.file.path; // Get path of the uploaded file
+
   try {
-    const { title, author, fileDescription } = req.body; // Get metadata from request body
-    const filePath = req.file.path; // Get path of the uploaded file
-
-    // Insert metadata into the database
     const client = await pool.connect();
-    //add modifications to handle notifications to user
-    
+
+    try {
+      // Insert metadata into the database
       await client.query('INSERT INTO books (title, author, description, path) VALUES ($1, $2, $3, $4)', [title, author, fileDescription, filePath]);
-    
-    
-    
-    const users = await client.query('SELECT * FROM users');
 
-    // Insert notifications for each user
-    users.rows.forEach(async (user) => {
-      await client.query('INSERT INTO notify (user_id, message) VALUES ($1, $2)', [user.id, `Hello New book, "${title}" by ${author} posted.`]);
-    });
+      // Fetch all users from the database
+      const result = await client.query('SELECT id FROM users');
+      const userIds = result.rows.map(user => user.id);
 
-    
-    
-    client.release();
+      // Prepare notifications for all users
+      const notifications = userIds.map(userId => {
+        return client.query('INSERT INTO notify (user_id, message) VALUES ($1, $2)', [userId, `Hello New book, "${title}" by ${author} posted.`]);
+      });
 
-    // Redirect to the upload page after successful upload
-    res.redirect('/upload');
+      // Execute all notifications insertion queries
+      await Promise.all(notifications);
+
+      client.release();
+
+      // Redirect to the upload page after successful upload
+      res.redirect('/upload');
+    } catch (error) {
+      console.error('Error during database operations:', error);
+      client.release();
+      throw error; // Rethrow error to be caught by outer catch block
+    }
   } catch (error) {
     console.error('Error uploading file:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
-
-
 
 
 app.get('/user/notifications/:userId', async (req, res) => {
@@ -320,7 +323,7 @@ app.use((req, res, next) => {
     req.userId = sessions[sessionId].userId; // Attach userId to the request object
     next(); // Proceed to the next middleware or route handler
   } else {
-    res.status(401).json({ message: 'Unauthorized' }); // No valid session
+    next(); // Proceed without authentication for routes that don't require it
   }
 });
 
@@ -331,50 +334,53 @@ app.use((req, res, next) => {
 const sessions = {}; // In-memory session storage
 
 app.post('/login', async (req, res) => {
-  const { phone, password } = req.body;
+    const { phone, password } = req.body;
 
-  try {
-    // Fetch user data from the database
-    const result = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
-    const user = result.rows[0];
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
+        const user = result.rows[0];
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (password !== user.password) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+
+        const sessionId = crypto.randomBytes(16).toString('hex');
+        sessions[sessionId] = { userId: user.id };
+
+        res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 3600000 });
+        res.cookie('userId', user.id, { httpOnly: true, maxAge: 3600000 }); // Set user ID cookie
+
+        if (phone === '255778611556') {
+            return res.redirect('/upload');
+        } else {
+          
+            return res.redirect('/uploads/viewer.html');
+        }
+    } catch (error) {
+        console.error('Error authenticating user:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
+});
 
-    // Check password (replace this with bcrypt or another secure method in production)
-    if (password !== user.password) {
-      return res.status(401).json({ message: 'Invalid password' });
-    }
-
-    // Generate a unique session ID
-    const sessionId = crypto.randomBytes(16).toString('hex');
-    
-    // Store the session ID in memory
-    sessions[sessionId] = { userId: user.id };
-
-    // Set the session ID in a cookie
-    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 3600000 }); // Cookie valid for 1 hour
-
-    // Redirect based on the phone number
-    if (phone === '255778611556') {
-      return res.redirect('/upload');
-    } else {
-      return res.redirect('/uploads/viewer.html');
-    }
-
-  } catch (error) {
-    console.error('Error authenticating user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+app.get('/uploads/viewer.html', (req, res) => {
+  if (req.userId) {
+    res.sendFile('/path/to/viewer.html'); // Serve the file if the user is authenticated
+  } else {
+    res.status(401).redirect('/login'); // Redirect to login if not authenticated
   }
 });
 
+
 // Route to handle updating likes for a book
-app.post('/updateLikes:id', async (req, res) => {
-  const { bookId } = req.params.id;
+app.post('/updateLikes/:id', async (req, res) => {
+  const bookId = req.params.id; // Access route parameter correctly
 
   try {
-    console.log(bookId)
+    console.log(bookId);
     // Increment likes count for the specified book ID
     const updateQuery = 'UPDATE books SET likes = likes + 1 WHERE id = $1';
     await pool.query(updateQuery, [bookId]);
@@ -388,6 +394,23 @@ app.post('/updateLikes:id', async (req, res) => {
   }
 });
 
+app.post('/updateViews/:id', async (req, res) => {
+  const bookId = req.params.id; // Access route parameter correctly
+
+  try {
+    console.log(bookId);
+    // Increment likes count for the specified book ID
+    const updateQuery = 'UPDATE books SET views = views + 1 WHERE id = $1';
+    await pool.query(updateQuery, [bookId]);
+    
+    // Send success response
+    res.json({ success: true, message: 'you have aded as a file viewer' });
+  } catch (error) {
+    console.error('Error updating likes:', error);
+    // Send error response
+    res.status(500).json({ success: false, error: 'Error updating likes' });
+  }
+});
 
 
 
