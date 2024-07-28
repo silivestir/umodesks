@@ -27,7 +27,7 @@
       
     .a{
      
-      background-image:url('mobcashfooter.jpg');
+      background-color:#74ABE2;
        }
       .b{
         font-weight: bold;
@@ -108,12 +108,15 @@
             border-radius: 50%;
             padding: 4px 7px;
         }
+       #file-list-container,#file-list{
+         background-color:#f1f1f1;
+       }
 </style>
 </head>
 
 <body>
 <nav class="navbar navbar-expand-xxl a navbar-dark">
-  <h1 class=" b">UMODesk</h1>
+  <h1 class=" b">ROITECHEDUCATION-COLLEGE</h1>
   <div class="container b">
     <span class="b">MENU</span>
   <p style="color:white">
@@ -133,7 +136,7 @@
       
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-         <span class="a"></span> <a class="nav-link a" href="/in"><span class="b">Readbooks</span></a></span>
+         <span class="a"></span> <a class="nav-link a" href="/enroll"><span class="b">enroll</span></a></span>
         </li>
         <li class="nav-item">
        
@@ -166,7 +169,7 @@
 
 <!--<button id="show-pdf-button">Show PDF</button> -->
 <div id="pdf-main-container">
-	<div id="pdf-loader">UMODesk is Loading the book ...</div>
+	<div id="pdf-loader">roitecheducation-college is Loading the book ...</div>
 	<div id="pdf-contents">
 		<div id="pdf-meta">
 			<div id="pdf-buttons">
@@ -180,7 +183,7 @@
 		<div id="page-loader">Loading page ...</div>
 	</div>
 	
- <center> <p class="text-secondary fw-bold">&#169 UMODesk <script>var d=new Date().getYear();</script>2024</p></center>
+ <center> <p class="text-secondary fw-bold">&#169 roitecheducation-college <script>var d=new Date().getYear();</script>2024</p></center>
 </div>
 
 <script>
@@ -212,11 +215,11 @@ async function createFileListFromDB() {
 
         // Constructing the list item HTML
         listItem.innerHTML = `
-    <div class="file-info" style="border: 1px solid black; border-radius: 5px; padding: 10px;">
-        <div class="file-title" style="color: red; cursor: pointer;">${file.title}</div>
+    <div class="file-info" style="border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; padding: 10px; background-color:white;">
+        <div class="file-title" style="color: gray; cursor: pointer;">${file.title}</div>
         <div class="file-description">${shortDescription}</div>
-        <div class="file-views"><i class="bi bi-eye-fill"></i> ${file.views}</div>
-        <span class="like-btn" style="cursor: pointer;"><i class="bi bi-heart-fill"></i> ${file.likes}</span>
+        <div class="file-views"><span class="views-btn"><i class="bi bi-eye-fill"></i> ${file.views}</span></div>
+        <span class="like-btn" style="cursor: pointer;"><i style="color:#74ABE2"  class="bi bi-heart-fill"></i> ${file.likes}</span>
         <span class="more-btn" style="cursor: pointer;">More•••</span>
     </div>
 `;
@@ -254,20 +257,57 @@ async function createFileListFromDB() {
         });
 
         // Adding event listener to send POST request to update likes on click of like button
-        listItem.querySelector('.like-btn').addEventListener('click', async function(event) {
-            event.stopPropagation(); // Prevent the click event from bubbling up to the list item
-            const id=file.id;
-            const response = await fetch('/updateLikes:id', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fileId: file.id }) // Assuming file has an id property
-            });
-            const data = await response.json();
-            alert('Likes updated:');
-            //alert(data)
+     listItem.querySelector('.like-btn').addEventListener('click', async function(event) {
+    event.stopPropagation(); // Prevent the click event from bubbling up to the list item
+
+    const id = file.id; // Assuming file has an id property
+    try {
+        const response = await fetch(`/updateLikes/${id}`, { // Correct URL construction
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            // No need for a body if not used on the server
         });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('Likes updated successfully');
+        } else {
+            alert(`Error updating likes: ${data.error}`);
+        }
+    } catch (error) {
+        console.error('Error updating likes:', error);
+        alert('Error updating likes');
+    }
+});
+
+listItem.querySelector('.file-title').addEventListener('click', async function(event) {
+    event.stopPropagation(); // Prevent the click event from bubbling up to the list item
+
+    const id = file.id; // Assuming file has an id property
+    try {
+        const response = await fetch(`/updateViews/${id}`, { // Correct URL construction
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            // No need for a body if not used on the server
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('you have aded as file viewer');
+        } else {
+            alert(`Error updating views: ${data.error}`);
+        }
+    } catch (error) {
+        console.error('Error updating views:', error);
+        alert('Error updating views');
+    }
+});
+
+
 
         // Adding the list item to the container
         fileListContainer.appendChild(listItem);
@@ -420,14 +460,13 @@ document.querySelector("#pdf-next").addEventListener('click', function() {
 
 
 <script>
-    // Functi
 document.addEventListener("DOMContentLoaded", async function() {
     await fetchNotifications();
 });
 
 async function fetchNotifications() {
     try {
-        const userId = getUserId(); // Get the user ID from the function
+        const userId = getUserIdFromCookie(); // Get the user ID from the cookie
         console.log('User ID:', userId);
 
         const response = await fetch(`/user/notifications/${userId}`, { // Fetch notifications based on the user ID
@@ -466,16 +505,28 @@ function renderNotifications(notifications) {
 
     if (unreadCount > 0) {
         notificationBadge.innerText = unreadCount;
+        notificationBadge.style.display = 'inline'; // Ensure badge is visible
     } else {
-        notificationBadge.style.display = 'none';
+        notificationBadge.style.display = 'none'; // Hide badge if no unread notifications
     }
 }
 
-function getUserId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('userId');
-}
+function getUserIdFromCookie() {
+    const name = 'userId=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookies = decodedCookie.split(';');
 
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+        }
+    }
+    return null; // Return null if the cookie is not found
+}
 </script>
 
 <script language="javascript">
