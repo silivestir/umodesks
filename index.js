@@ -4,7 +4,7 @@ const path = require('path');
 const multer = require('multer');
 const { Pool } = require('pg');
 const cookieParser = require('cookie-parser'); // Ensure you use this middleware to parse cookies
-
+const nodemailer = require('nodemailer');
 
 //const jwxt = require('jsonwebtoken');
 //const jwt = require('jsonwebtoken');
