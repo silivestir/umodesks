@@ -297,9 +297,9 @@ app.post('/logout', (req, res) => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'your-email@gmail.com',
-    pass: 'your-email-password'
-  }
+        user: 'silvestiriassey@gmail.com',
+        pass: 'urzt ftqf caxa rhwk' // It's better to use environment variables for sensitive information
+    }
 });
 
 // Route for user signup and OTP sending
@@ -325,7 +325,7 @@ app.post('/signups', async (req, res) => {
 
     // Send OTP email
     const mailOptions = {
-      from: 'your-email@gmail.com',
+      from: 'silvestiriassey@gmail.com',
       to: email,
       subject: 'Your OTP Code',
       html: `
