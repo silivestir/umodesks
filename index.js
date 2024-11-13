@@ -1,18 +1,13 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const multer = require('multer');
 const { Pool } = require('pg');
-const cookieParser = require('cookie-parser');
-const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 // Database connection
 const pool = new Pool({
@@ -23,29 +18,8 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 
-// Multer setup for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  }
-});
-
-const upload = multer({ storage: storage });
-
 // Session management (in-memory, consider using Redis for production)
-const sessions = {}; 
-
-// Nodemailer setup for OTP emails
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'silvestiriassey@gmail.com',
-    pass: 'urzt ftqf caxa rhwk', // Replace with environment variable in production
-  },
-});
+const sessions = {};
 
 // Initialize database tables if not present
 const createUserTable = `
@@ -54,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(255) NOT NULL,
   phone VARCHAR(15) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE,
-  password VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,  // Store password as plain text (not recommended)
   otp INTEGER,
   otp_expires_at TIMESTAMP
 );
@@ -78,8 +52,7 @@ async function initializeTables() {
     // Create an admin user if not exists
     const checkUser = await client.query('SELECT * FROM users WHERE phone = $1', ['255778611556']);
     if (checkUser.rowCount === 0) {
-      const hashedPassword = await bcrypt.hash('admin@umodesk', 10);
-      await client.query('INSERT INTO users (username, phone, password) VALUES ($1, $2, $3)', ['admin', '255778611556', hashedPassword]);
+      await client.query('INSERT INTO users (username, phone, password) VALUES ($1, $2, $3)', ['admin', '255778611556', 'admin@umodesk']); // Store plain text password
     }
     client.release();
     console.log('Tables initialized successfully.');
@@ -91,9 +64,8 @@ async function initializeTables() {
 initializeTables();
 
 // Routes for file upload and metadata insertion
-app.post('/upload', upload.single('uploadFile'), async (req, res) => {
-  const { title, author, fileDescription } = req.body;
-  const filePath = req.file.path;
+app.post('/upload', async (req, res) => {
+  const { title, author, fileDescription, filePath } = req.body;
 
   try {
     const client = await pool.connect();
@@ -132,11 +104,8 @@ app.post('/signups', async (req, res) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    // Hash password before storing
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert user into the database
-    await pool.query('INSERT INTO users (username, email, phone, password) VALUES ($1, $2, $3, $4)', [username, email, phone, hashedPassword]);
+    // Insert user into the database (store plain text password)
+    await pool.query('INSERT INTO users (username, email, phone, password) VALUES ($1, $2, $3, $4)', [username, email, phone, password]);
 
     // Generate OTP
     const otp = crypto.randomInt(100000, 999999);
@@ -145,22 +114,10 @@ app.post('/signups', async (req, res) => {
     // Update the user's OTP and expiration time
     await pool.query('UPDATE users SET otp = $1, otp_expires_at = $2 WHERE email = $3', [otp, expiresAt, email]);
 
-    // Send OTP email
-    const mailOptions = {
-      from: 'silvestiriassey@gmail.com',
-      to: email,
-      subject: 'Your OTP Code',
-      html: `<p>Your OTP code is <strong>${otp}</strong>.</p>`,
-    };
+    // Send OTP email (simplified)
+    console.log(`Your OTP code is: ${otp}`);
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-        return res.status(500).json({ error: 'Failed to send OTP email' });
-      }
-      console.log('Email sent:', info.response);
-      return res.redirect(`/otp-verification?email=${email}`);
-    });
+    res.redirect(`/otp-verification?email=${email}`);
   } catch (error) {
     console.error('Error signing up:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -204,7 +161,7 @@ app.get('/otp-verification', (req, res) => {
   res.render('otp-verification', { email });
 });
 
-// Login route with password hashing
+// Login route with plain-text password (no bcrypt)
 app.post('/login', async (req, res) => {
   const { phone, password } = req.body;
 
@@ -216,16 +173,18 @@ app.post('/login', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
+    // Check plain-text password
+    if (user.password !== password) {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
+    // Session management (simple cookie handling)
     const sessionId = crypto.randomBytes(16).toString('hex');
     sessions[sessionId] = { userId: user.id };
 
-    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 3600000 });
-    res.cookie('userId', user.id, { httpOnly: true, maxAge: 3600000 });
+    // Set cookies manually (no cookie-parser)
+    res.setHeader('Set-Cookie', `sessionId=${sessionId}; HttpOnly; Max-Age=3600`);
+    res.setHeader('Set-Cookie', `userId=${user.id}; HttpOnly; Max-Age=3600`);
 
     res.json({ message: 'Login successful' });
   } catch (error) {
@@ -234,14 +193,30 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Logout route
+// Logout route (no cookie-parser)
 app.post('/logout', (req, res) => {
-  const sessionId = req.cookies.sessionId;
+  const cookies = parseCookies(req);
+  const sessionId = cookies.sessionId;
+
+  // Remove session from memory
   delete sessions[sessionId];
-  res.clearCookie('sessionId');
-  res.clearCookie('userId');
+
+  // Clear cookies manually
+  res.setHeader('Set-Cookie', 'sessionId=; HttpOnly; Max-Age=0');
+  res.setHeader('Set-Cookie', 'userId=; HttpOnly; Max-Age=0');
   res.send('Logged out successfully');
 });
+
+// Helper function to parse cookies (since no cookie-parser)
+function parseCookies(req) {
+  const cookieHeader = req.headers.cookie || '';
+  const cookies = {};
+  cookieHeader.split(';').forEach(cookie => {
+    const [name, value] = cookie.trim().split('=');
+    cookies[name] = value;
+  });
+  return cookies;
+}
 
 // Start the server
 const port = process.env.PORT || 3000;
